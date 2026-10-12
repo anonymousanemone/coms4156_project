@@ -1,0 +1,18 @@
+[ {
+  "id" : "64ef3f70-b37c-4a44-ba16-aaf8318ae3f4",
+  "name" : "Laptop",
+  "category" : "digital goods",
+  "basePrice" : 999.99
+}, {
+  "id" : "55588770-a078-4d26-a295-efe112ff63ea",
+  "name" : "Apple",
+  "category" : "groceries",
+  "basePrice" : 1.49
+}, {
+  "id" : "bd64160d-91fe-4f62-aa0a-f3b09f9863a1",
+  "name" : "Phone",
+  "category" : "digital goods",
+  "basePrice" : 1299.29
+}
+
+]
