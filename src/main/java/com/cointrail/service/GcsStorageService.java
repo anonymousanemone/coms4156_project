@@ -38,9 +38,10 @@ public final class GcsStorageService
     @PostConstruct
     public void initializeData() throws IOException {
         String[] files = {
-            "clients.json",
-            "items.json",
-            "taxrates.json",
+            "coins.json",
+            "museums.json",
+            "donors.json",
+            "acquisitions.json",
         };
         for (String fileName : files) {
             BlobId blobId =

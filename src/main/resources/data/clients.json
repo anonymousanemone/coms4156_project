@@ -1,41 +1,13 @@
 [ {
   "id" : "b649544e-c51d-4e89-8f3b-cc83f37e8c49",
-  "name" : "Walmart",
+  "name" : "MMA",
   "apiKey" : "540ba996-2ae9-4f72-8b4f-014b463bc4d7"
 }, {
   "id" : "741b3930-0ee8-443a-9eec-2423a9d8eddf",
-  "name" : "Amazon",
+  "name" : "ANS",
   "apiKey" : "390b059d-1cbf-42b3-b739-fc7be11c1a88"
 }, {
   "id" : "d7eac2ed-4447-4c99-b84b-9b3c65d60a94",
-  "name" : "TiresInc",
+  "name" : "SMB",
   "apiKey" : "8b37db32-07f2-4983-8905-b275bca41ca7"
-}, {
-  "id" : "9d013e51-9a78-4a80-9dc3-cc5bcf93315b",
-  "name" : "Testing",
-  "apiKey" : "44a6cb2b-1b70-4365-a26a-76070f6988c3"
-}, {
-  "id" : "d7edfbba-b3c8-47d9-a97f-6aeddb65a40b",
-  "name" : "Testing2",
-  "apiKey" : "5f6b0bc5-03d8-471b-bb94-1827eea4eac9"
-}, {
-  "id" : "f4ef2880-8920-4177-bdfc-786a3f7e2b51",
-  "name" : "Bob",
-  "apiKey" : "a9b61285-4377-43ee-8f17-f38a67ac7d07"
-}, {
-  "id" : "30c1e0ea-0242-410f-8f06-387598831cbd",
-  "name" : "testing4",
-  "apiKey" : "20d65071-597b-4139-947e-94770cee7970"
-}, {
-  "id" : "876eec12-f1aa-4411-a5db-d451091d47af",
-  "name" : "price-tag-demo-1790988061293",
-  "apiKey" : "a390806b-21f1-44a7-aad0-13810a38105b"
-}, {
-  "id" : "1deb89e1-78d2-47e0-b774-0fec214f9995",
-  "name" : "price-tag-demo-1790988130526",
-  "apiKey" : "71b1da16-b746-4853-b756-c400e48d9df9"
-}, {
-  "id" : "45cb3251-5a84-4d72-babd-c3544b17a33d",
-  "name" : "price-tag-demo-1790988271845",
-  "apiKey" : "a2ef36ae-f9f5-4d5c-abeb-167509a70830"
-} ]
+}]
