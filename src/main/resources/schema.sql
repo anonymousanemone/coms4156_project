@@ -41,12 +41,6 @@ CREATE TABLE IF NOT EXISTS coins (
     accessed_at     TIMESTAMPTZ
 );
 
-CREATE TABLE IF NOT EXISTS clients (
-    id      TEXT PRIMARY KEY,
-    name    TEXT NOT NULL,
-    api_key TEXT NOT NULL UNIQUE
-);
-
 -- Postgres does not index foreign keys on its own; these make the coin ->
 -- acquisition join and "everything from this donor/museum" lookups cheap.
 CREATE INDEX IF NOT EXISTS acquisitions_donor_idx
@@ -62,7 +56,3 @@ CREATE INDEX IF NOT EXISTS coins_category_idx
     ON coins (category, id);
 CREATE INDEX IF NOT EXISTS coins_material_idx
     ON coins (material, id);
-
--- Client names are unique ignoring case (createClient relies on this).
-CREATE UNIQUE INDEX IF NOT EXISTS clients_name_idx
-    ON clients (LOWER(name));
