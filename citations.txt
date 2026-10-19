@@ -1,0 +1,5 @@
+Sophia - Claude Code, Sonnet 5.5 was used to switch from the old json storage service to postgresql, hosted on supabase. First, I prompted it to analyze and explain: Explain what logic changes would happen by switching from json storage to postgresql. Currently, a call reads a whole json file from disk or gcs, parses it into a list, and filters it in java. How would data be processed with postgresql instead? Does this mean that instead of reading a whole json file then filtering, it would instead just make a targeted query for the relevant information in the services? 
+
+After confirming this question, I prompted it to complete the StorageService: Postgreql operations, like the json file read and write operations, should be put in a StorageService.java instead of in  CointrailService.java. Please set up some simple read and write queries, and verify database connection. Please also set up tests to confirm. 
+
+The session above took apprximately 30k tokens.
