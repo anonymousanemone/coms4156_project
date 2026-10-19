@@ -1,5 +1,7 @@
 package com.cointrail.model;
 
+import java.time.Instant;
+
 /**
  * Represents a coin held by a museum.
  */
@@ -8,8 +10,8 @@ public final class Coin {
     /** The coin ID, in format museumId-accNumber. */
     private String id;
 
-    /** The accession number, as assigned by the museum. */
-    private String accessionNumber;
+    /** The identifier code, as assigned by the museum or catalogue. */
+    private String identifierCode;
 
     /** The link to the museum's catalogue entry. */
     private String catalogueLink;
@@ -26,11 +28,20 @@ public final class Coin {
     /** The last year of the coin's period (negative for BCE). */
     private Integer periodEnd;
 
-    /** The credit line exactly as the museum published it. */
+    /** Whether the period was estimated because the museum gave none. */
+    private boolean periodInferred;
+
+    /**
+     * The original credit line from the catalogue, 
+     * or other raw acquisition information.
+     */
     private String creditLine;
 
     /** The acquisition it is a part of. */
     private Acquisition acquisition;
+
+    /** When the record was fetched from the museum or source. */
+    private Instant accessedAt;
 
     /** Default constructor. */
     public Coin() {
@@ -38,21 +49,22 @@ public final class Coin {
 
     /**
      * Constructs a coin from "raw" source fields. The processed fields
-     * (category, material, period, and acquisition) are set afterwards.
+     * (category, material, period, acquisition, and access time) 
+     * are set afterwards.
      *
      * @param id the coin ID
-     * @param accessionNumber the accession number
+     * @param identifierCode the identifier code
      * @param catalogueLink the catalogue link
      * @param creditLine the original credit line
      */
     public Coin(
         final String id,
-        final String accessionNumber,
+        final String identifierCode,
         final String catalogueLink,
         final String creditLine
     ) {
         this.id = id;
-        this.accessionNumber = accessionNumber;
+        this.identifierCode = identifierCode;
         this.catalogueLink = catalogueLink;
         this.creditLine = creditLine;
     }
@@ -76,21 +88,21 @@ public final class Coin {
     }
 
     /**
-     * Gets the accession number.
+     * Gets the identifier code.
      *
-     * @return the accession number
+     * @return the identifier code
      */
-    public String getAccessionNumber() {
-        return accessionNumber;
+    public String getIdentifierCode() {
+        return identifierCode;
     }
 
     /**
-     * Sets the accession number.
+     * Sets the identifier code.
      *
-     * @param accessionNumber the accession number
+     * @param identifierCode the identifier code
      */
-    public void setAccessionNumber(final String accessionNumber) {
-        this.accessionNumber = accessionNumber;
+    public void setIdentifierCode(final String identifierCode) {
+        this.identifierCode = identifierCode;
     }
 
     /**
@@ -184,6 +196,24 @@ public final class Coin {
     }
 
     /**
+     * Gets whether the period was estimated.
+     *
+     * @return true if the period was estimated
+     */
+    public boolean isPeriodInferred() {
+        return periodInferred;
+    }
+
+    /**
+     * Sets whether the period was estimated.
+     *
+     * @param periodInferred true if the period was estimated
+     */
+    public void setPeriodInferred(final boolean periodInferred) {
+        this.periodInferred = periodInferred;
+    }
+
+    /**
      * Gets the original credit line.
      *
      * @return the credit line
@@ -217,5 +247,23 @@ public final class Coin {
      */
     public void setAcquisition(final Acquisition acquisition) {
         this.acquisition = acquisition;
+    }
+
+    /**
+     * Gets the access time.
+     *
+     * @return when the record was fetched
+     */
+    public Instant getAccessedAt() {
+        return accessedAt;
+    }
+
+    /**
+     * Sets the access time.
+     *
+     * @param accessedAt when the record was fetched
+     */
+    public void setAccessedAt(final Instant accessedAt) {
+        this.accessedAt = accessedAt;
     }
 }

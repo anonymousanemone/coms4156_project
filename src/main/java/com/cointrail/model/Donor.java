@@ -17,6 +17,9 @@ public final class Donor {
     /** The donor names exactly as they appeared in imports. */
     private Set<String> nameVariants = new LinkedHashSet<>();
 
+    /** Other information about the donor, such as authority IDs, or null. */
+    private String additionalInfo;
+
     /** Default constructor. */
     public Donor() {
     }
@@ -92,8 +95,25 @@ public final class Donor {
         this.nameVariants = new LinkedHashSet<>(nameVariants);
     }
 
+    /**
+     * Gets the additional info.
+     *
+     * @return the additional info, or null
+     */
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
 
-    /** Adds a name variant. 
+    /**
+     * Sets the additional info.
+     *
+     * @param additionalInfo the additional info
+     */
+    public void setAdditionalInfo(final String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    /** Adds a name variant.
      * 
      * @param nameVariant the name variant to add
      */

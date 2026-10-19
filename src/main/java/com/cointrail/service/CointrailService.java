@@ -3,11 +3,6 @@ package com.cointrail.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.cointrail.model.Client;
-import com.cointrail.model.Item;
-import com.cointrail.model.SupportedResponse;
-import com.cointrail.model.TaxQuoteRequest;
-import com.cointrail.model.TaxQuoteResponse;
-import com.cointrail.model.TaxRate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

@@ -9,8 +9,8 @@ public final class Acquisition {
     /** The acquisition ID. */
     private String id;
 
-    /** The museum name. */
-    private String museum;
+    /** The ID of the museum. */
+    private String museumId;
 
     /** The donor ID, or null if the donor is unknown. */
     private String donorId;
@@ -21,28 +21,38 @@ public final class Acquisition {
     /** The acquisition type. */
     private AcquisitionType type;
 
+    /** The museum's lot identifier, or null if it has none. */
+    private String lotIdentifier;
+
+    /** The acquisition date as the museum wrote it, or null. */
+    private String acquiredOnText;
+
+    /** Other acquisition information, such as the lot link, or null. */
+    private String additionalInfo;
+
     /** Default constructor. */
     public Acquisition() {
     }
 
     /**
-     * Constructs an acquisition.
+     * Constructs an acquisition. The optional fields (lot identifier,
+     * acquired-on text, and additional info) are set afterwards.
      *
      * @param id the acquisition ID
-     * @param museum the museum name
+     * @param museumId the museum ID
      * @param donorId the donor ID, or null
      * @param year the acquisition year, or null
      * @param type the acquisition type
      */
     public Acquisition(
         final String id,
-        final String museum,
+        final String museumId,
         final String donorId,
         final Integer year,
         final AcquisitionType type
     ) {
         this.id = id;
-        this.museum = museum;
+        this.museumId = museumId;
         this.donorId = donorId;
         this.year = year;
         this.type = type;
@@ -67,21 +77,21 @@ public final class Acquisition {
     }
 
     /**
-     * Gets the museum name.
+     * Gets the museum ID.
      *
-     * @return the museum name
+     * @return the museum ID
      */
-    public String getMuseum() {
-        return museum;
+    public String getMuseumId() {
+        return museumId;
     }
 
     /**
-     * Sets the museum name.
+     * Sets the museum ID.
      *
-     * @param museum the museum name
+     * @param museumId the museum ID
      */
-    public void setMuseum(final String museum) {
-        this.museum = museum;
+    public void setMuseumId(final String museumId) {
+        this.museumId = museumId;
     }
 
     /**
@@ -136,6 +146,60 @@ public final class Acquisition {
      */
     public void setType(final AcquisitionType type) {
         this.type = type;
+    }
+
+    /**
+     * Gets the lot identifier.
+     *
+     * @return the lot identifier, or null
+     */
+    public String getLotIdentifier() {
+        return lotIdentifier;
+    }
+
+    /**
+     * Sets the lot identifier.
+     *
+     * @param lotIdentifier the lot identifier
+     */
+    public void setLotIdentifier(final String lotIdentifier) {
+        this.lotIdentifier = lotIdentifier;
+    }
+
+    /**
+     * Gets the acquisition date text.
+     *
+     * @return the date as the museum wrote it, or null
+     */
+    public String getAcquiredOnText() {
+        return acquiredOnText;
+    }
+
+    /**
+     * Sets the acquisition date text.
+     *
+     * @param acquiredOnText the date as the museum wrote it
+     */
+    public void setAcquiredOnText(final String acquiredOnText) {
+        this.acquiredOnText = acquiredOnText;
+    }
+
+    /**
+     * Gets the additional info.
+     *
+     * @return the additional info, or null
+     */
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    /**
+     * Sets the additional info.
+     *
+     * @param additionalInfo the additional info
+     */
+    public void setAdditionalInfo(final String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
 }
