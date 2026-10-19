@@ -7,8 +7,11 @@ import java.time.Instant;
  */
 public final class Coin {
 
-    /** The coin ID, in format museumId-accNumber. */
+    /** The coin ID. */
     private String id;
+
+    /** The ID of the museum that holds the coin. */
+    private String museumId;
 
     /** The identifier code, as assigned by the museum or catalogue. */
     private String identifierCode;
@@ -85,6 +88,24 @@ public final class Coin {
      */
     public void setId(final String id) {
         this.id = id;
+    }
+
+    /**
+     * Gets the museum ID.
+     *
+     * @return the museum ID
+     */
+    public String getMuseumId() {
+        return museumId;
+    }
+
+    /**
+     * Sets the museum ID.
+     *
+     * @param museumId the museum ID
+     */
+    public void setMuseumId(final String museumId) {
+        this.museumId = museumId;
     }
 
     /**

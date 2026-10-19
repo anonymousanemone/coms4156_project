@@ -3,3 +3,10 @@ Sophia - Claude Code, Sonnet 5.5 was used to switch from the old json storage se
 After confirming this question, I prompted it to complete the StorageService: Postgreql operations, like the json file read and write operations, should be put in a StorageService.java instead of in  CointrailService.java. Please set up some simple read and write queries, and verify database connection. Please also set up tests to confirm. 
 
 The session above took apprximately 30k tokens.
+
+Sophia - Claude Code, Sonnet 5.5 was used to confirm and rewrite storage services, tests: Rewrite StorageService to match the real Supabase tables, not an invented schema. Museums are identified by their museum_id code, not their uuid id; coins have a NOT NULL museum_id.
+
+Then, I prompted it to: Set up a throwaway Postgres for tests with Docker. A current copy of the schema.sql and csv exports of the actual data is in the test/resources folder. Test classes with the same setup should share one container. Also write StorageServiceTest. Test against the CSV data: row counts, one coin with a donor and one without, a coin with no acquisition, donor name variants, missing and malformed ids, paging through all coins in id order, category/material filters checked against SQL counts, limit bounds, upserting an existing coin, BEQUEST and OTHER round trips, museum rename, a failed batch rolling back completely, and a 2,500-row multi-batch write.
+
+The commands above took about 30k tokens as well.
+

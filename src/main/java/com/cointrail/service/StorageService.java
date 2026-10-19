@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Reads and writes the catalog tables in PostgreSQL.
@@ -39,20 +40,20 @@ public final class StorageService {
      * in one query. The acquisition columns are null if it has none.
      */
     private static final String COIN_SELECT =
-        "SELECT c.id, c.identifier_code, c.catalogue_link, c.category,"
-            + " c.material, c.period_start, c.period_end,"
-            + " c.period_inferred, c.credit_line, c.accessed_at,"
-            + " c.acquisition_id, a.museum_id, a.donor_id, a.year,"
-            + " a.type AS acquisition_type, a.lot_identifier,"
+        "SELECT c.id, c.museum_id AS coin_museum_id, c.identifier_code,"
+            + " c.catalogue_link, c.category, c.material, c.period_start,"
+            + " c.period_end, c.period_inferred, c.credit_line,"
+            + " c.accessed_at, c.acquisition_id, a.museum_id, a.donor_id,"
+            + " a.year, a.type AS acquisition_type, a.lot_identifier,"
             + " a.acquired_on_text,"
             + " a.additional_info AS acquisition_info"
             + " FROM coins c"
             + " LEFT JOIN acquisitions a ON a.id = c.acquisition_id";
 
-    /** Inserts a museum, or updates it if the ID exists. */
+    /** Inserts a museum, or updates its name if the code exists. */
     private static final String UPSERT_MUSEUM =
-        "INSERT INTO museums (id, name) VALUES (?, ?)"
-            + " ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name";
+        "INSERT INTO museums (museum_id, name) VALUES (?, ?)"
+            + " ON CONFLICT (museum_id) DO UPDATE SET name = EXCLUDED.name";
 
     /** Inserts a donor, or updates it if the ID exists. */
     private static final String UPSERT_DONOR =
@@ -67,7 +68,7 @@ public final class StorageService {
     private static final String UPSERT_ACQUISITION =
         "INSERT INTO acquisitions (id, museum_id, donor_id, year, type,"
             + " lot_identifier, acquired_on_text, additional_info)"
-            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            + " VALUES (?, ?, ?, ?, ?::acquisition_type, ?, ?, ?)"
             + " ON CONFLICT (id) DO UPDATE SET"
             + " museum_id = EXCLUDED.museum_id,"
             + " donor_id = EXCLUDED.donor_id,"
@@ -79,11 +80,12 @@ public final class StorageService {
 
     /** Inserts a coin, or updates it if the ID exists. */
     private static final String UPSERT_COIN =
-        "INSERT INTO coins (id, identifier_code, catalogue_link, category,"
-            + " material, period_start, period_end, period_inferred,"
-            + " credit_line, acquisition_id, accessed_at)"
-            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        "INSERT INTO coins (id, museum_id, identifier_code, catalogue_link,"
+            + " category, material, period_start, period_end,"
+            + " period_inferred, credit_line, acquisition_id, accessed_at)"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             + " ON CONFLICT (id) DO UPDATE SET"
+            + " museum_id = EXCLUDED.museum_id,"
             + " identifier_code = EXCLUDED.identifier_code,"
             + " catalogue_link = EXCLUDED.catalogue_link,"
             + " category = EXCLUDED.category,"
@@ -120,10 +122,11 @@ public final class StorageService {
      *
      * @param id the coin ID
      * @return the coin, or null if there is none
+     * @throws IllegalArgumentException if the ID is not a UUID
      */
     public Coin findCoin(final String id) {
         List<Coin> coins = jdbc.query(
-            COIN_SELECT + " WHERE c.id = ?", this::mapCoin, id
+            COIN_SELECT + " WHERE c.id = ?", this::mapCoin, uuid(id)
         );
         return coins.isEmpty() ? null : coins.get(0);
     }
@@ -139,7 +142,8 @@ public final class StorageService {
      *      start at the beginning
      * @param limit the page size, from 1 to {@link #MAX_PAGE_SIZE}
      * @return the coins, at most {@code limit} of them
-     * @throws IllegalArgumentException if the limit is out of range
+     * @throws IllegalArgumentException if the limit is out of range or
+     *      {@code afterId} is not a UUID
      */
     public List<Coin> findCoins(
         final String category,
@@ -165,7 +169,7 @@ public final class StorageService {
         }
         if (afterId != null) {
             sql.append(" AND c.id > ?");
-            args.add(afterId);
+            args.add(uuid(afterId));
         }
         sql.append(" ORDER BY c.id LIMIT ?");
         args.add(limit);
@@ -174,27 +178,29 @@ public final class StorageService {
     }
 
     /**
-     * Writes coins, replacing any with the same ID. Each coin's
-     * acquisition must already exist, and only its ID is stored.
-     * All coins are written in one transaction.
+     * Writes coins, replacing any with the same ID. Each coin's museum
+     * must already exist, and so must its acquisition if it has one;
+     * only the acquisition's ID is stored. All coins are written in one
+     * transaction.
      *
      * @param coins the coins
      */
     public void upsertCoins(final List<Coin> coins) {
         batch(UPSERT_COIN, coins, (ps, coin) -> {
-            ps.setString(1, coin.getId());
-            ps.setString(2, coin.getIdentifierCode());
-            ps.setString(3, coin.getCatalogueLink());
-            ps.setString(4, coin.getCategory());
-            ps.setString(5, coin.getMaterial());
-            ps.setObject(6, coin.getPeriodStart());
-            ps.setObject(7, coin.getPeriodEnd());
-            ps.setBoolean(8, coin.isPeriodInferred());
-            ps.setString(9, coin.getCreditLine());
-            ps.setString(10, coin.getAcquisition() == null
+            ps.setObject(1, uuid(coin.getId()));
+            ps.setString(2, coin.getMuseumId());
+            ps.setString(3, coin.getIdentifierCode());
+            ps.setString(4, coin.getCatalogueLink());
+            ps.setString(5, coin.getCategory());
+            ps.setString(6, coin.getMaterial());
+            ps.setObject(7, coin.getPeriodStart());
+            ps.setObject(8, coin.getPeriodEnd());
+            ps.setBoolean(9, coin.isPeriodInferred());
+            ps.setString(10, coin.getCreditLine());
+            ps.setObject(11, coin.getAcquisition() == null
                 ? null
-                : coin.getAcquisition().getId());
-            ps.setObject(11, coin.getAccessedAt() == null
+                : uuid(coin.getAcquisition().getId()));
+            ps.setObject(12, coin.getAccessedAt() == null
                 ? null
                 : OffsetDateTime.ofInstant(
                     coin.getAccessedAt(), ZoneOffset.UTC));
@@ -204,19 +210,19 @@ public final class StorageService {
     /**
      * Gets all museums. There are few, so this reads them all.
      *
-     * @return the museums, in ID order
+     * @return the museums, in code order
      */
     public List<Museum> findMuseums() {
         return jdbc.query(
-            "SELECT id, name FROM museums ORDER BY id",
+            "SELECT museum_id, name FROM museums ORDER BY museum_id",
             (rs, rowNum) -> new Museum(
-                rs.getString("name"), rs.getString("id"))
+                rs.getString("name"), rs.getString("museum_id"))
         );
     }
 
     /**
-     * Writes museums, replacing any with the same ID, in one
-     * transaction.
+     * Writes museums, replacing the name of any with the same code, in
+     * one transaction.
      *
      * @param museums the museums
      */
@@ -232,12 +238,13 @@ public final class StorageService {
      *
      * @param id the donor ID
      * @return the donor, or null if there is none
+     * @throws IllegalArgumentException if the ID is not a UUID
      */
     public Donor findDonor(final String id) {
         List<Donor> donors = jdbc.query(
             "SELECT id, name, name_variants, additional_info"
                 + " FROM donors WHERE id = ?",
-            this::mapDonor, id
+            this::mapDonor, uuid(id)
         );
         return donors.isEmpty() ? null : donors.get(0);
     }
@@ -250,7 +257,7 @@ public final class StorageService {
      */
     public void upsertDonors(final List<Donor> donors) {
         batch(UPSERT_DONOR, donors, (ps, donor) -> {
-            ps.setString(1, donor.getId());
+            ps.setObject(1, uuid(donor.getId()));
             ps.setString(2, donor.getName());
             ps.setArray(3, ps.getConnection().createArrayOf(
                 "text", donor.getNameVariants().toArray()));
@@ -267,9 +274,9 @@ public final class StorageService {
      */
     public void upsertAcquisitions(final List<Acquisition> acquisitions) {
         batch(UPSERT_ACQUISITION, acquisitions, (ps, acquisition) -> {
-            ps.setString(1, acquisition.getId());
+            ps.setObject(1, uuid(acquisition.getId()));
             ps.setString(2, acquisition.getMuseumId());
-            ps.setString(3, acquisition.getDonorId());
+            ps.setObject(3, uuid(acquisition.getDonorId()));
             ps.setObject(4, acquisition.getYear());
             ps.setString(5, acquisition.getType().name());
             ps.setString(6, acquisition.getLotIdentifier());
@@ -297,6 +304,17 @@ public final class StorageService {
     }
 
     /**
+     * Converts an ID to a UUID.
+     *
+     * @param id the ID, or null
+     * @return the UUID, or null if the ID is null
+     * @throws IllegalArgumentException if the ID is not a UUID
+     */
+    private static UUID uuid(final String id) {
+        return id == null ? null : UUID.fromString(id);
+    }
+
+    /**
      * Builds a coin, and its acquisition if it has one, from a row of
      * {@link #COIN_SELECT}.
      *
@@ -313,6 +331,7 @@ public final class StorageService {
             rs.getString("catalogue_link"),
             rs.getString("credit_line")
         );
+        coin.setMuseumId(rs.getString("coin_museum_id"));
         coin.setCategory(rs.getString("category"));
         coin.setMaterial(rs.getString("material"));
         coin.setPeriodStart(rs.getObject("period_start", Integer.class));
