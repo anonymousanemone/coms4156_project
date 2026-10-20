@@ -1,0 +1,13 @@
+[ {
+  "id" : "b649544e-c51d-4e89-8f3b-cc83f37e8c49",
+  "name" : "MMA",
+  "apiKey" : "540ba996-2ae9-4f72-8b4f-014b463bc4d7"
+}, {
+  "id" : "741b3930-0ee8-443a-9eec-2423a9d8eddf",
+  "name" : "ANS",
+  "apiKey" : "390b059d-1cbf-42b3-b739-fc7be11c1a88"
+}, {
+  "id" : "d7eac2ed-4447-4c99-b84b-9b3c65d60a94",
+  "name" : "SMB",
+  "apiKey" : "8b37db32-07f2-4983-8905-b275bca41ca7"
+}]
