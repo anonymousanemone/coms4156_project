@@ -1,4 +1,4 @@
 /**
- * Model package for the Tax API.
+ * Model package for the CoinTrail API.
  */
 package com.cointrail.model;

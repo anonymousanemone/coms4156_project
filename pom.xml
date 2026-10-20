@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com</groupId>
-	<artifactId>taxapi</artifactId>
+	<artifactId>cointrail</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>taxapi</name>
-	<description>Sales tax service</description>
+	<name>cointrail</name>
+	<description>Museum coin acquisition data service</description>
 	<url/>
 	<licenses>
 		<license/>

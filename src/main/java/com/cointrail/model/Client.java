@@ -1,7 +1,7 @@
 package com.cointrail.model;
 
 /**
- * Represents a client in the tax API.
+ * Represents a client of the CoinTrail API.
  */
 public final class Client {
 
