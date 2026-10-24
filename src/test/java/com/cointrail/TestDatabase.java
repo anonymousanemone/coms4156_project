@@ -17,7 +17,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  * starting their own.</p>
  */
 @TestConfiguration(proxyBeanMethods = false)
-public class TestDatabase {
+public final class TestDatabase {
 
     @Bean
     @ServiceConnection
