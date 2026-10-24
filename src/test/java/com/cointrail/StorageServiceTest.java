@@ -5,7 +5,6 @@ package com.cointrail;
 import com.cointrail.model.Acquisition;
 import com.cointrail.model.AcquisitionType;
 import com.cointrail.model.Coin;
-import com.cointrail.model.Donor;
 import com.cointrail.model.Museum;
 import com.cointrail.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,18 +52,23 @@ class StorageServiceTest {
     private static final String EXCAVATED_COIN =
         "0094df25-cebd-491f-aabf-7dab4058654d";
 
+    /** A donor with name variants in the test data. */
     private static final String KERPER =
         "f7863357-6dd5-41a0-ac9e-7c6653ca767f";
 
+    /** A second donor in the test data. */
     private static final String ICKELHEIMER =
         "ee164e0d-d9d9-4e45-8af2-78fa366b0971";
 
+    /** The service under test. */
     @Autowired
     private StorageService storage;
 
+    /** Runs SQL to check what the service wrote. */
     @Autowired
     private JdbcTemplate jdbc;
 
+    /** The test database, for reloading the CSVs. */
     @Autowired
     private DataSource dataSource;
 
@@ -73,12 +77,12 @@ class StorageServiceTest {
         TestData.load(dataSource);
     }
 
-    private int count(String table) {
+    private int count(final String table) {
         return jdbc.queryForObject("SELECT COUNT(*) FROM " + table,
             Integer.class);
     }
 
-    private Coin newCoin(String acquisitionId) {
+    private Coin newCoin(final String acquisitionId) {
         Coin coin = new Coin(UUID.randomUUID().toString(), "test-1",
             "http://example.com", "credit");
         coin.setMuseumId("MMA");
@@ -92,8 +96,19 @@ class StorageServiceTest {
         return coin;
     }
 
-    /** Reads every matching coin, a page at a time. */
-    private List<Coin> allCoins(String category, String material, int page) {
+    /**
+     * Reads every matching coin, a page at a time.
+     *
+     * @param category the category filter, or null
+     * @param material the material filter, or null
+     * @param page how many coins to read per page
+     * @return every matching coin, in ID order
+     */
+    private List<Coin> allCoins(
+        final String category,
+        final String material,
+        final int page
+    ) {
         List<Coin> all = new ArrayList<>();
         String after = null;
         List<Coin> batch;
