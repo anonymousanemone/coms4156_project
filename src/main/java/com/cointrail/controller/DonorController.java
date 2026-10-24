@@ -1,11 +1,13 @@
 package com.cointrail.controller;
 
 import com.cointrail.service.DonorService;
+import com.cointrail.service.QueryFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,10 +32,15 @@ public final class DonorController {
     /**
      * Lists donors matching optional filters.
      *
+     * @param name part of the donor's name, matched without case
+     * @param filter the acquisition filters, from query parameters
      * @return 501 until implemented
      */
     @GetMapping
-    public ResponseEntity<Object> getDonors() {
+    public ResponseEntity<Object> getDonors(
+        @RequestParam(required = false) final String name,
+        final QueryFilter filter
+    ) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 

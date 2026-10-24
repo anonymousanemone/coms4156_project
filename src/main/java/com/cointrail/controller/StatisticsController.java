@@ -1,5 +1,6 @@
 package com.cointrail.controller;
 
+import com.cointrail.service.QueryFilter;
 import com.cointrail.service.StatisticsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +31,11 @@ public final class StatisticsController {
     /**
      * Computes a metric grouped by up to two dimensions.
      *
+     * @param filter the acquisition filters, from query parameters
      * @return 501 until implemented
      */
     @GetMapping
-    public ResponseEntity<Object> getStatistics() {
+    public ResponseEntity<Object> getStatistics(final QueryFilter filter) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 

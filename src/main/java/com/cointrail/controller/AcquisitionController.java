@@ -1,6 +1,7 @@
 package com.cointrail.controller;
 
 import com.cointrail.service.AcquisitionService;
+import com.cointrail.service.QueryFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,10 +33,11 @@ public final class AcquisitionController {
     /**
      * Lists acquisitions matching optional filters.
      *
+     * @param filter the filters, from query parameters
      * @return 501 until implemented
      */
     @GetMapping
-    public ResponseEntity<Object> getAcquisitions() {
+    public ResponseEntity<Object> getAcquisitions(final QueryFilter filter) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 

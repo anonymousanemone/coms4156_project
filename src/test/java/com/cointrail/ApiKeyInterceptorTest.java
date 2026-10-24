@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.cointrail.config.ApiKeyInterceptor;
@@ -43,7 +43,7 @@ class ApiKeyInterceptorTest {
     void missingKeyReturns401() throws Exception {
         mockMvc.perform(get("/v1/statistics"))
             .andExpect(status().isUnauthorized())
-            .andExpect(content().string("Missing X-API-Key header"));
+            .andExpect(jsonPath("$.error").value("Missing X-API-Key header"));
     }
 
     @Test
@@ -58,7 +58,7 @@ class ApiKeyInterceptorTest {
         mockMvc.perform(get("/v1/statistics")
                 .header(ApiKeyInterceptor.HEADER, "wrong-key"))
             .andExpect(status().isUnauthorized())
-            .andExpect(content().string("Unknown API key"));
+            .andExpect(jsonPath("$.error").value("Unknown API key"));
     }
 
     @Test
