@@ -1,0 +1,889 @@
+{
+  "info": {
+    "name": "CoinTrail",
+    "description": "API tests for the CoinTrail service. The expected numbers assume the database holds the test data in src/test/resources/test_data. Set baseUrl and apiKey to point at another server or client.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "apiKey",
+      "value": "540ba996-2ae9-4f72-8b4f-014b463bc4d7"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get statistics",
+      "description": "Operation 4: counts grouped by up to two dimensions, and museum/donor summaries.",
+      "item": [
+        {
+          "name": "Valid requests",
+          "item": [
+            {
+              "name": "All objects, no grouping",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Metric defaults to objects\", () => pm.expect(body.metric).to.eql(\"objects\"));",
+                      "pm.test(\"No buckets without groupBy\", () => pm.expect(body.buckets).to.be.empty);",
+                      "pm.test(\"Counts every coin\", () => pm.expect(body.total).to.eql(1405));",
+                      "pm.test(\"Nothing excluded\", () => {",
+                      "    pm.expect(body.excludedMissingYear).to.eql(0);",
+                      "    pm.expect(body.excludedUnknownType).to.eql(0);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Objects by decade and type",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?metric=objects&groupBy=decade&groupBy=type",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "metric",
+                      "value": "objects"
+                    },
+                    {
+                      "key": "groupBy",
+                      "value": "decade"
+                    },
+                    {
+                      "key": "groupBy",
+                      "value": "type"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Echoes the group-by\", () => pm.expect(body.groupBy).to.eql([\"decade\", \"type\"]));",
+                      "pm.test(\"Excludes coins missing a year or type\", () => {",
+                      "    pm.expect(body.excludedMissingYear).to.eql(20);",
+                      "    pm.expect(body.excludedUnknownType).to.eql(21);",
+                      "    pm.expect(body.total).to.eql(1383);",
+                      "});",
+                      "pm.test(\"Buckets add up to the total\", () => {",
+                      "    const sum = body.buckets.reduce((s, b) => s + b.value, 0);",
+                      "    pm.expect(sum).to.eql(body.total);",
+                      "});",
+                      "pm.test(\"1890s gifts\", () => {",
+                      "    const b = body.buckets.find(b => b.groups.decade === 1890 && b.groups.type === \"GIFT\");",
+                      "    pm.expect(b.value).to.eql(113);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Acquisitions by type",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?metric=acquisitions&groupBy=type",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "metric",
+                      "value": "acquisitions"
+                    },
+                    {
+                      "key": "groupBy",
+                      "value": "type"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Counts distinct gift acquisitions\", () => {",
+                      "    const gift = body.buckets.find(b => b.groups.type === \"GIFT\");",
+                      "    pm.expect(gift.value).to.eql(80);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Distinct donors",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?metric=donors",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "metric",
+                      "value": "donors"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Counts every donor once\", () => pm.expect(pm.response.json().total).to.eql(65));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Gifts 1900-1919 (type filter in lower case)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?types=gift&yearFrom=1900&yearTo=1919",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "types",
+                      "value": "gift"
+                    },
+                    {
+                      "key": "yearFrom",
+                      "value": "1900"
+                    },
+                    {
+                      "key": "yearTo",
+                      "value": "1919"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Filters by type and year\", () => pm.expect(pm.response.json().total).to.eql(152));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Only acquisitions of 10+ coins",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?minObjects=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "minObjects",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Keeps large acquisitions only\", () => pm.expect(pm.response.json().total).to.eql(1200));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Museum summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics/museums/MMA",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics",
+                    "museums",
+                    "MMA"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Totals\", () => {",
+                      "    pm.expect(body.name).to.eql(\"The Metropolitan Museum of Art\");",
+                      "    pm.expect(body.totalObjects).to.eql(1405);",
+                      "    pm.expect(body.totalAcquisitions).to.eql(95);",
+                      "    pm.expect(body.distinctDonors).to.eql(65);",
+                      "});",
+                      "pm.test(\"Objects by type\", () => pm.expect(body.objectsByType).to.eql({EXCAVATION: 678, GIFT: 496, PURCHASE: 210, UNKNOWN: 21}));",
+                      "pm.test(\"Largest acquisitions, biggest first\", () => {",
+                      "    pm.expect(body.largestAcquisitions).to.have.lengthOf(5);",
+                      "    pm.expect(body.largestAcquisitions[0].objects).to.eql(525);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Donor summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics/donors/f7863357-6dd5-41a0-ac9e-7c6653ca767f",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics",
+                    "donors",
+                    "f7863357-6dd5-41a0-ac9e-7c6653ca767f"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test(\"Summarizes the donor\", () => {",
+                      "    pm.expect(body.name).to.eql(\"Edmund Kerper, Esq.\");",
+                      "    pm.expect(body.totalObjects).to.eql(4);",
+                      "    pm.expect(body.firstYear).to.eql(1952);",
+                      "    pm.expect(body.objectsByType).to.eql({GIFT: 4});",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Invalid requests",
+          "item": [
+            {
+              "name": "No API key",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Missing X-API-Key header\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown API key",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ]
+                },
+                "auth": {
+                  "type": "apikey",
+                  "apikey": [
+                    {
+                      "key": "key",
+                      "value": "X-API-Key",
+                      "type": "string"
+                    },
+                    {
+                      "key": "value",
+                      "value": "not-a-real-key",
+                      "type": "string"
+                    },
+                    {
+                      "key": "in",
+                      "value": "header",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Unknown API key\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown metric",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?metric=coins",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "metric",
+                      "value": "coins"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Unknown metric: coins\"));",
+                      "pm.test(\"Lists accepted metrics\", () => pm.expect(pm.response.json().acceptedValues).to.eql([\"objects\", \"acquisitions\", \"donors\"]));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown group-by dimension",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?groupBy=century",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "groupBy",
+                      "value": "century"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Unknown groupBy dimension: century\"));",
+                      "pm.test(\"Lists accepted dimensions\", () => pm.expect(pm.response.json().acceptedValues).to.include(\"decade\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Three group-by dimensions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?groupBy=museum&groupBy=type&groupBy=year",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "groupBy",
+                      "value": "museum"
+                    },
+                    {
+                      "key": "groupBy",
+                      "value": "type"
+                    },
+                    {
+                      "key": "groupBy",
+                      "value": "year"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"At most 2 groupBy dimensions are allowed\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Same dimension twice",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?groupBy=type&groupBy=type",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "groupBy",
+                      "value": "type"
+                    },
+                    {
+                      "key": "groupBy",
+                      "value": "type"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"A groupBy dimension is repeated\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown museum filter",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?museums=LOUVRE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "museums",
+                      "value": "LOUVRE"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Unknown museum: LOUVRE\"));",
+                      "pm.test(\"Lists accepted museums\", () => pm.expect(pm.response.json().acceptedValues).to.eql([\"MMA\"]));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown type filter",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?types=stolen",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "types",
+                      "value": "stolen"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Unknown acquisition type: stolen\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Backwards year range",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?yearFrom=1950&yearTo=1900",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "yearFrom",
+                      "value": "1950"
+                    },
+                    {
+                      "key": "yearTo",
+                      "value": "1900"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"yearFrom must not be after yearTo\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Non-numeric year",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?yearFrom=abc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "yearFrom",
+                      "value": "abc"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"Invalid parameter value\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Negative minObjects",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics?minObjects=-1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics"
+                  ],
+                  "query": [
+                    {
+                      "key": "minObjects",
+                      "value": "-1"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"minObjects must not be negative\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown museum summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics/museums/LOUVRE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics",
+                    "museums",
+                    "LOUVRE"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));",
+                      "pm.test(\"Error message\", () => pm.expect(pm.response.json().error).to.eql(\"No museum with code LOUVRE\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Unknown donor summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics/donors/00000000-0000-0000-0000-000000000000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics",
+                    "donors",
+                    "00000000-0000-0000-0000-000000000000"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 404\", () => pm.response.to.have.status(404));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Malformed donor ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/statistics/donors/not-an-id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "statistics",
+                    "donors",
+                    "not-an-id"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
