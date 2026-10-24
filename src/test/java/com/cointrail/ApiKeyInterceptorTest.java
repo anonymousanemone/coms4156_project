@@ -67,7 +67,7 @@ class ApiKeyInterceptorTest {
     void validKeyReachesController() throws Exception {
         mockMvc.perform(get("/v1/statistics")
                 .header(ApiKeyInterceptor.HEADER, VALID_KEY))
-            .andExpect(status().isNotImplemented());
+            .andExpect(status().isOk());
     }
 
     @Test
