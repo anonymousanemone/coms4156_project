@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 class GlobalExceptionHandlerTest {
 
+    /** Sends requests to the throwing controller. */
     private MockMvc mockMvc;
 
     /** A controller whose only job is to throw what it is asked to. */

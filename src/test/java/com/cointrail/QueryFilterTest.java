@@ -18,8 +18,10 @@ import org.junit.jupiter.api.Test;
  */
 class QueryFilterTest {
 
+    /** The museums that exist in these tests. */
     private static final List<String> MUSEUMS = List.of("MMA", "ANS");
 
+    /** A valid donor ID. */
     private static final String DONOR = UUID.randomUUID().toString();
 
     @Nested

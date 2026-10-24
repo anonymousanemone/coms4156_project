@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  */
 class StubRoutesTest {
 
+    /** Sends requests to all five controllers. */
     private MockMvc mockMvc;
 
     @BeforeEach

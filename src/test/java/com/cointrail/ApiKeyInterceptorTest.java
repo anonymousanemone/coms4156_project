@@ -24,8 +24,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  */
 class ApiKeyInterceptorTest {
 
+    /** The only key the interceptor accepts in these tests. */
     private static final String VALID_KEY = "valid-key";
 
+    /** Sends requests through the interceptor. */
     private MockMvc mockMvc;
 
     @BeforeEach
